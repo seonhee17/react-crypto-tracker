@@ -68,3 +68,13 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+# / - > All coins
+# /:id -> btc -> Coin Detail
+
+# nested router
+# 한스크린 내에 또다른 Router를 가질 수 있다.
+
+# /btc/information
+# /btc/chart
