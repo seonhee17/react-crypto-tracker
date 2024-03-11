@@ -78,3 +78,6 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 
 # /btc/information
 # /btc/chart
+
+#recoil --> state management library for react
+#
