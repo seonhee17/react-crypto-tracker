@@ -1,11 +1,12 @@
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 
 
 function Coin(){
+    
     const { coinId } = useParams();
-    console.log(coinId);
+    
     return (
-        <h1>Coin 's  key is : {coinId}</h1>
+        <h1>Coin's  key is : {coinId}</h1>
     );
 }
 
