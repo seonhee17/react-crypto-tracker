@@ -128,7 +128,11 @@ name: string;
 const location = useLocation();
 const name = location.state as RouterState; */
 
-function Coin(){
+interface ICoinProps {
+  isDark: boolean;
+}
+
+function Coin({ isDark }: ICoinProps) {
     
     
     /* const [loading , setLoading] = useState(true);
@@ -215,8 +219,8 @@ function Coin(){
               <span>${infoData?.symbol}</span>
             </OverviewItem>
             <OverviewItem>
-              <span>Open Source:</span>
-              <span>{infoData?.open_source ? "Yes" : "No"}</span>
+              <span>Price:</span>
+              <span>${tickersData?.quotes?.USD?.price?.toFixed(3)}</span>
             </OverviewItem>
           </Overview>
           <Description>{infoData?.description}</Description>
@@ -238,7 +242,7 @@ function Coin(){
            파라미터로 상태를 표시하고 싶을때  */}
           <Routes>
             <Route path={`/${coinId}/price`} element={ <Price />} />
-            <Route path={`/${coinId}/chart`} element={ <Chart />} />
+            <Route path={`/${coinId}/chart`} element={ <Chart isDark={isDark} ={coinId} />} />
          </Routes>
         </>
       )}
