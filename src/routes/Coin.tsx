@@ -44,15 +44,24 @@ const name = location.state as RouterState; */
 function Coin(){
     
     const [isLoading , setLoading] = useState(true);
-    const [coin , setCoin] = useState([]);
-    /* 
-    const { coinId } = useParams(); */
+    const [info , setInfo] = useState({});
+    const [price , setPrice] = useState({});
+    const { coinId } = useParams();
     const location = useLocation();
     const state = location.state as RouteState;
     console.log(location);
    
     //component가 생성될 때 한번만 코드를 실행하려면 useEffect 사용
-
+    useEffect(()=>{
+        (async () => {
+            const infoData = await(await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)).json() 
+            const priceData = await(await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)).json();
+            
+            setInfo(infoData);
+            setPrice(priceData);
+        
+        })();
+   },[]);
  
 
 
