@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { Routes, Route, useParams } from "react-router";
 import { styled } from "styled-components";
 import { useLocation } from "react-router-dom";
+import Chart from "./Chart";
+import Price from "./Price";
 
 const Header = styled.header`
     height: 10vh;
@@ -20,6 +22,28 @@ const Title = styled.h1`
 font-size: 48px;
 color : ${props => props.theme.accentColor};
 `;
+const Overview = styled.div`
+  display: flex;
+  justify-content: space-between;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 10px 20px;
+  border-radius: 10px;
+`;
+const OverviewItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  span:first-child {
+    font-size: 10px;
+    font-weight: 400;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+`;
+const Description = styled.p`
+  margin: 20px 0px;
+`;
+
 
 const Loader = styled.span`
     text-align: center;
@@ -103,9 +127,9 @@ const name = location.state as RouterState; */
 
 function Coin(){
     
-    const [isLoading , setLoading] = useState(true);
+    const [loading , setLoading] = useState(true);
     const [info , setInfo] = useState<InfoData>();
-    const [price , setPrice] = useState<PriceData>();
+    const [priceInfo , setPriceInfo] = useState<PriceData>();
     const { coinId } = useParams();
     const location = useLocation();
     const state = location.state as RouteState;
@@ -120,10 +144,16 @@ function Coin(){
             //console.log(priceData);
             
             setInfo(infoData);
-            setPrice(priceData);
+            setPriceInfo(priceData);
+            setLoading(false);
         
         })();
-   },[]);
+   },[coinId]);
+   //[] 처음 실행하고 싶을때는 useEffect 끝에  [] 붙인다.
+   //하지만 hooks 는 우리가 최적의 성능을 위해 hooks 안에 사용한 어떤 것이든  [] 안에 넣어줘야한다고,
+   //dependancy를 넣어햐한다고 한다.
+   //[coinId] coinId가 변할 때마다 useEffect 실행 
+   //url에 coinId가 변경되기 때문에 컴포넌트안에서는 안변한다.
 
     //state : 
     // coins 화면을 통하지 않으면 에러가 남.
@@ -133,14 +163,51 @@ function Coin(){
     return (
         <Container>
         <Header>
-            <Title> { state?.name || "Loading.." }</Title>
+            <Title>
+            {state?.name ? state.name : loading ? "Loading..." : info?.name}
+            </Title>
         </Header>
-        { isLoading ? 
-            (<Loader>is Loading...</Loader> )
-            : (
-                   null          
-            )
-        }
+        {loading ? (
+        <Loader>Loading...</Loader>
+      ) : (
+        <>
+          <Overview>
+            <OverviewItem>
+              <span>Rank:</span>
+              <span>{info?.rank}</span>
+            </OverviewItem>
+            <OverviewItem>
+              <span>Symbol:</span>
+              <span>${info?.symbol}</span>
+            </OverviewItem>
+            <OverviewItem>
+              <span>Open Source:</span>
+              <span>{info?.open_source ? "Yes" : "No"}</span>
+            </OverviewItem>
+          </Overview>
+          <Description>{info?.description}</Description>
+          <Overview>
+            <OverviewItem>
+              <span>Total Suply:</span>
+              <span>{priceInfo?.total_supply}</span>
+            </OverviewItem>
+            <OverviewItem>
+              <span>Max Supply:</span>
+              <span>{priceInfo?.max_supply}</span>
+            </OverviewItem>
+          </Overview>
+          //Nested router 혹은 Nested route는 route안에 있는 또다른 route이다.
+          // 탭사용시 용의
+          // 스크린안에 많은 섹션이 있는 곳도 유형
+          // btc/price
+          // btc/chart
+          // 파라미터로 상태를 표시하고 싶을때 
+          <Routes>
+            <Route path={`/${coinId}/price`} element={ <Price />} />
+            <Route path={`/${coinId}/chart`} element={ <Chart />} />
+         </Routes>
+        </>
+      )}
         </Container>  
     );
 }
