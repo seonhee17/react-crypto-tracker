@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
-import { Routes, Route, useParams } from "react-router";
+/* import { useEffect, useState } from "react"; */
+
 import { styled } from "styled-components";
-import { useLocation } from "react-router-dom";
+import { Routes, Route, useParams,useLocation } from "react-router-dom";
 import Chart from "./Chart";
 import Price from "./Price";
+/* import { useQuery } from "@tanstack/react-query"; */
+import { useQuery } from "react-query";
+import { fetchCoinInfo, fetchCoinTickers } from "../api";
 
 const Header = styled.header`
     height: 10vh;
@@ -55,10 +58,10 @@ interface RouteParams {
 interface RouteState {
     name : string;
 } 
-//Object.keys : 키값
-//Object.value : 값
-//command + D : 선택한것과 같은것 선택하기
-//command + Shift + L : 선책한 것과 같은 것의 다중 커서 ㄴ생성
+/* Object.keys : 키값
+Object.value : 값
+command + D : 선택한것과 같은것 선택하기
+command + Shift + L : 선책한 것과 같은 것의 다중 커서 ㄴ생성 */
 
 
 interface InfoData {
@@ -127,44 +130,75 @@ const name = location.state as RouterState; */
 
 function Coin(){
     
-    const [loading , setLoading] = useState(true);
+    
+    /* const [loading , setLoading] = useState(true);
     const [info , setInfo] = useState<InfoData>();
-    const [priceInfo , setPriceInfo] = useState<PriceData>();
+    const [priceInfo , setPriceInfo] = useState<PriceData>(); */
     const { coinId } = useParams();
     const location = useLocation();
     const state = location.state as RouteState;
     console.log(location);
    
-    //component가 생성될 때 한번만 코드를 실행하려면 useEffect 사용
-    useEffect(()=>{
+   
+  /*   component가 생성될 때 한번만 코드를 실행하려면 useEffect 사용
+    react-query를 사용하는 첫 단계는
+     fetcher 함수를 만들어야한다.
+     fetcher 함수란?
+     await fetch 부분 임.
+     api.ts 생성
+     fetch함수 는  promise 부분을 반드시 리턴해야한다. */
+
+
+    /* 리액트 쿼리 사용 시 없어지는 곳 */ 
+   /*  useEffect(()=>{
         (async () => {
-            const infoData = await(await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)).json() 
-            //console.log(infoData);
-            const priceData = await(await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)).json();
-            //console.log(priceData);
+            const infoData = await(await fetch(`https:api.coinpaprika.com/v1/coins/${coinId}`)).json() 
+            console.log(infoData);
+            const priceData = await(await fetch(`https:api.coinpaprika.com/v1/tickers/${coinId}`)).json();
+            console.log(priceData);
             
             setInfo(infoData);
             setPriceInfo(priceData);
             setLoading(false);
         
         })();
-   },[coinId]);
-   //[] 처음 실행하고 싶을때는 useEffect 끝에  [] 붙인다.
-   //하지만 hooks 는 우리가 최적의 성능을 위해 hooks 안에 사용한 어떤 것이든  [] 안에 넣어줘야한다고,
-   //dependancy를 넣어햐한다고 한다.
-   //[coinId] coinId가 변할 때마다 useEffect 실행 
-   //url에 coinId가 변경되기 때문에 컴포넌트안에서는 안변한다.
+   },[coinId]); */
+   /* 리액트 쿼리 사용 시 없어지는 곳 */ 
 
-    //state : 
-    // coins 화면을 통하지 않으면 에러가 남.
-    // 그래서 state 뒤에 ?를 붙임.
-    // state가 존재하면 , state.name을 가져오고 아니면 loading..을 띄운다.
+   /* 리액트 쿼리 사용 */
+   const { isLoading: infoLoading, data: infoData } = useQuery({
+      queryKey : ["info", coinId],
+      queryFn : ()=> fetchCoinInfo(`${coinId}`),
+    });
+    const { isLoading: tickersLoading, data: tickersData } = useQuery({
+      queryKey : ["price", coinId],
+      queryFn : ()=> fetchCoinTickers(`${coinId}`),
+     });
+
+     const loading = infoLoading || tickersLoading;
+
+
+   /* 리액트 쿼리 사용 */
+
+
+
+
+   /* [] 처음 실행하고 싶을때는 useEffect 끝에  [] 붙인다.
+   하지만 hooks 는 우리가 최적의 성능을 위해 hooks 안에 사용한 어떤 것이든  [] 안에 넣어줘야한다고,
+   dependancy를 넣어햐한다고 한다.
+   [coinId] coinId가 변할 때마다 useEffect 실행 
+   url에 coinId가 변경되기 때문에 컴포넌트안에서는 안변한다.
+
+    state : 
+     coins 화면을 통하지 않으면 에러가 남.
+     그래서 state 뒤에 ?를 붙임.
+     state가 존재하면 , state.name을 가져오고 아니면 loading..을 띄운다. */
  
     return (
         <Container>
         <Header>
             <Title>
-            {state?.name ? state.name : loading ? "Loading..." : info?.name}
+            {state?.name ? state.name : loading ? "Loading..." : infoData?.name}
             </Title>
         </Header>
         {loading ? (
@@ -174,34 +208,34 @@ function Coin(){
           <Overview>
             <OverviewItem>
               <span>Rank:</span>
-              <span>{info?.rank}</span>
+              <span>{infoData?.rank}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Symbol:</span>
-              <span>${info?.symbol}</span>
+              <span>${infoData?.symbol}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Open Source:</span>
-              <span>{info?.open_source ? "Yes" : "No"}</span>
+              <span>{infoData?.open_source ? "Yes" : "No"}</span>
             </OverviewItem>
           </Overview>
-          <Description>{info?.description}</Description>
+          <Description>{infoData?.description}</Description>
           <Overview>
             <OverviewItem>
               <span>Total Suply:</span>
-              <span>{priceInfo?.total_supply}</span>
+              <span>{tickersData?.total_supply}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Max Supply:</span>
-              <span>{priceInfo?.max_supply}</span>
+              <span>{tickersData?.max_supply}</span>
             </OverviewItem>
           </Overview>
-          //Nested router 혹은 Nested route는 route안에 있는 또다른 route이다.
-          // 탭사용시 용의
-          // 스크린안에 많은 섹션이 있는 곳도 유형
-          // btc/price
-          // btc/chart
-          // 파라미터로 상태를 표시하고 싶을때 
+          {/* Nested router 혹은 Nested route는 route안에 있는 또다른 route이다.
+           탭사용시 용의
+           스크린안에 많은 섹션이 있는 곳도 유형
+           btc/price
+           btc/chart
+           파라미터로 상태를 표시하고 싶을때  */}
           <Routes>
             <Route path={`/${coinId}/price`} element={ <Price />} />
             <Route path={`/${coinId}/chart`} element={ <Chart />} />

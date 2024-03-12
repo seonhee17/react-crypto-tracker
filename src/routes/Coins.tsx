@@ -1,6 +1,9 @@
 import styled from "styled-components";
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
+/* import { useQuery } from "@tanstack/react-query";/*  */ 
+import { useQuery } from "react-query";
+import { fetchCoins } from "../api";
 
 const Container = styled.div`
     padding: 0px 20px;
@@ -62,18 +65,36 @@ margin-right: 10px;
 
 
 function Coins(){
+     //component가 처음 시작할 때만 작동하도록
+   /* 리액트 쿼리 사용 시 없어지는 곳 */ 
+   /*  
     const [coins ,setCoins] = useState<CoinInterface[]>([]);
     const [isLoading , setLoading] = useState(true);
-    //component가 처음 시작할 때만 작동하도록
-
-    useEffect(()=>{
+    
+     useEffect(()=>{
         (async()=> {
           const res =  await fetch("https://api.coinpaprika.com/v1/coins");
           const json = await res.json();
           setCoins(json.slice(0,100));
           setLoading(false);
         })();
-    },[]);
+    },[]); */
+  /* 리액트 쿼리 사용 시 없어지는 곳 */ 
+  
+  /* 리액트 쿼리 사용 */
+
+    //querykey query의 고유 식별자
+    // Boolean인 로딩여부를  isLoading에 넣어줌.
+    // 이쿼리 이름  allCoins
+    const { isLoading , data } = useQuery<CoinInterface[]>({
+        queryKey: ['allCoins'],
+        queryFn: fetchCoins
+      });
+
+  /* 리액트 쿼리 사용 */
+
+
+
 
     //Link로 연결된 곳의 페이지에서  state로 가져다 쓸수 있ㄷ.
     //Coin.tsx 페이지서 가져다 쓰기
@@ -89,7 +110,7 @@ function Coins(){
             (<Loader>is Loading...</Loader> )
             :   
             (<CoinList>
-                {coins.map((coin) => (
+                {data?.slice(0, 100).map((coin) => (
                     <Coin key={coin.id}>
                        {/*  <Link to={`/${coin.id}`} >
                             <Img src={`https://cryptoicon-api.pages.dev/api/icon/${coin.symbol.toLowerCase()}`}/>    

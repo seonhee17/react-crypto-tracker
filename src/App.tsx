@@ -1,5 +1,6 @@
 import { createGlobalStyle } from "styled-components";  
 import Router from "./Router";  
+import { ReactQueryDevtools } from "react-query/devtools";
 
 //젼역 스코프에 두게 한ㅏ.
 const GlobalStyle = createGlobalStyle`@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400&display=swap');
@@ -64,13 +65,15 @@ a {
   text-decoration:none;
 }
 `; 
-
+// ReactDevQueryDevtools 리액트 캐시 데이터 사용
+//initialIsOpen
 export default function App(){
     return(
         //fragment <></> 쓸모없는 div 태그를 없애기 위해
         <>
             <GlobalStyle />
             <Router />
+            <ReactQueryDevtools initialIsOpen={true} />
          </>  
     );
 };
